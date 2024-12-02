@@ -1,4 +1,6 @@
-﻿Console.WriteLine("Advent Day 1");
+﻿using System.Linq;
+
+Console.WriteLine("Advent Day 1");
 
 var pair = ParseText(args[0]);
 Console.WriteLine(SumOfPairs(pair.Item1, pair.Item2));
@@ -22,14 +24,11 @@ static int SumOfPairs(List<int> left, List<int> right)
     left.Sort();
     right.Sort();
 
-    var sum = 0;
-
-    foreach ((var a, var b) in left.Zip(right))
-    {
-        sum += (a <= b) ? (b - a) : a - b;
-    }
-
-    return sum;
+    return left.Zip(right).Aggregate(0,
+                                    (s, pair) =>
+                                        (pair.Item1 <= pair.Item2)
+                                        ? s + (pair.Item2 - pair.Item1)
+                                        : s + (pair.Item1 - pair.Item2));
 }
 
 static (List<int>, List<int>) ParseText(String fileName)
