@@ -1,6 +1,7 @@
 ﻿using System.Linq;
 using System.Reflection.Emit;
 using System.Security.Cryptography;
+using System.Text.RegularExpressions;
 
 /*Console.WriteLine("Advent Day 1");
 
@@ -8,10 +9,59 @@ var pair = ParseDay1Text(args[0]);
 Console.WriteLine(SumOfPairs(pair.Item1, pair.Item2));
 Console.WriteLine(SimilarityScore(pair.Item1, pair.Item2));*/
 
+/*
 Console.WriteLine("Advent Day 2");
 var levels = ParseDay2Text(args[0]);
 Console.WriteLine("Normal safety: " + levels.Where(IsLevelSafe).Count());
-Console.WriteLine("Safety with dampening: " + levels.Where(IsLevelSafeWithDampening).Count());
+Console.WriteLine("Safety with dampening: " + levels.Where(IsLevelSafeWithDampening).Count());*/
+
+Console.WriteLine("Advent Day 3");
+
+var pairs = ParseText(File.ReadAllText(args[0]));
+
+var multiplied = pairs.Select(pair => pair.Item1 * pair.Item2);
+
+var summed = multiplied.Sum();
+
+Console.WriteLine(summed);
+
+static IEnumerable<(int, int)> ParseText(string text)
+{
+    var matches = Regex.Matches(text, @"mul\((\d)+,(\d)+\)");
+
+    var pairs = new List<(int, int)>();
+
+    foreach (Match match in matches)
+    {
+        //Console.WriteLine(match.Value);
+        if (match.Groups.Count != 3)
+        {
+            throw new Exception("Expecting 3 groups");
+        }
+        var firstGroup = match.Groups[1];
+        string firstNum = "";
+        foreach (var digit in firstGroup.Captures)
+        {
+            firstNum += digit;
+        }
+        //Console.WriteLine(Int32.Parse(firstNum));
+
+        var secondGroup = match.Groups[2];
+        string secondNum = "";
+        foreach (var digit in secondGroup.Captures)
+        {
+            secondNum += digit;
+        }
+        //Console.WriteLine(Int32.Parse(secondNum));
+
+        pairs.Add((Int32.Parse(firstNum), Int32.Parse(secondNum)));
+
+        //Console.WriteLine(secondGroup.Captures.ToString());
+    }
+
+    return pairs;
+}
+
 
 static bool IsGapSafe(int a, int b)
 {
