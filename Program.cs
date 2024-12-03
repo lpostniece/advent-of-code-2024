@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using System.Net.NetworkInformation;
 using System.Reflection.Emit;
 using System.Security.Cryptography;
 using System.Text.RegularExpressions;
@@ -25,41 +26,30 @@ var summed = multiplied.Sum();
 
 Console.WriteLine(summed);
 
+static int ParseMatchGroup(Match match, int index)
+{
+    var group = match.Groups[index];
+    string num = "";
+    foreach (var digit in group.Captures)
+    {
+        num += digit;
+    }
+    return Int32.Parse(num);
+}
+
+static (int, int) ParsePair(Match match)
+{
+    if (match.Groups.Count != 3)
+    {
+        throw new Exception("Expecting 3 groups");
+    }
+    return (ParseMatchGroup(match, 1), ParseMatchGroup(match, 2));
+}
+
 static IEnumerable<(int, int)> ParseTextForMul(string text)
 {
     var matches = Regex.Matches(text, @"mul\((\d)+,(\d)+\)");
-
-    var pairs = new List<(int, int)>();
-
-    foreach (Match match in matches)
-    {
-        //Console.WriteLine(match.Value);
-        if (match.Groups.Count != 3)
-        {
-            throw new Exception("Expecting 3 groups");
-        }
-        var firstGroup = match.Groups[1];
-        string firstNum = "";
-        foreach (var digit in firstGroup.Captures)
-        {
-            firstNum += digit;
-        }
-        //Console.WriteLine(Int32.Parse(firstNum));
-
-        var secondGroup = match.Groups[2];
-        string secondNum = "";
-        foreach (var digit in secondGroup.Captures)
-        {
-            secondNum += digit;
-        }
-        //Console.WriteLine(Int32.Parse(secondNum));
-
-        pairs.Add((Int32.Parse(firstNum), Int32.Parse(secondNum)));
-
-        //Console.WriteLine(secondGroup.Captures.ToString());
-    }
-
-    return pairs;
+    return matches.Select(ParsePair);
 }
 
 static IEnumerable<(int, int)> ParseTextForMulDoDont(string text)
@@ -80,30 +70,9 @@ static IEnumerable<(int, int)> ParseTextForMulDoDont(string text)
         {
             enabled = false;
         }
-        else
+        else if (enabled)
         {
-            if (enabled)
-            {
-                if (match.Groups.Count != 3)
-                {
-                    throw new Exception("Expecting 3 groups");
-                }
-                var firstGroup = match.Groups[1];
-                string firstNum = "";
-                foreach (var digit in firstGroup.Captures)
-                {
-                    firstNum += digit;
-                }
-
-                var secondGroup = match.Groups[2];
-                string secondNum = "";
-                foreach (var digit in secondGroup.Captures)
-                {
-                    secondNum += digit;
-                }
-
-                pairs.Add((Int32.Parse(firstNum), Int32.Parse(secondNum)));
-            }
+            pairs.Add(ParsePair(match));
         }
     }
 
