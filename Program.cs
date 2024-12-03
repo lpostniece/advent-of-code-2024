@@ -10,12 +10,27 @@ Console.WriteLine(SimilarityScore(pair.Item1, pair.Item2));*/
 
 Console.WriteLine("Advent Day 2");
 var levels = ParseDay2Text(args[0]);
-Console.WriteLine(levels.Where(IsLevelSafe).Count());
+Console.WriteLine("Normal safety: " + levels.Where(IsLevelSafe).Count());
+Console.WriteLine("Safety with dampening: " + levels.Where(IsLevelSafeWithDampening).Count());
 
 static bool IsGapSafe(int a, int b)
 {
     var diff = Math.Abs(a - b);
     return diff >= 1 && diff <= 3;
+}
+
+static bool IsLevelSafeWithDampening(IEnumerable<int> level)
+{
+    for (var excludeIndex = 0; excludeIndex < level.Count(); excludeIndex++)
+    {
+        IEnumerable<int> levelWithDampening = level.Take(excludeIndex).Concat(level.TakeLast(level.Count() - excludeIndex - 1));
+        if (IsLevelSafe(levelWithDampening))
+        {
+            return true;
+        }
+    }
+
+    return false;
 }
 
 static bool IsLevelSafe(IEnumerable<int> level)
