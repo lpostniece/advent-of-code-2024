@@ -1,8 +1,4 @@
-﻿using System.Linq;
-using System.Net.NetworkInformation;
-using System.Reflection.Emit;
-using System.Security.Cryptography;
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 
 /*Console.WriteLine("Advent Day 1");
 
@@ -28,13 +24,11 @@ Console.WriteLine(summed);
 
 static int ParseMatchGroup(Match match, int index)
 {
-    var group = match.Groups[index];
-    string num = "";
-    foreach (var digit in group.Captures)
-    {
-        num += digit;
-    }
-    return Int32.Parse(num);
+    string numString = match
+                        .Groups[index]
+                        .Captures.Aggregate("", 
+                                            (accumulator, digit) => accumulator + digit);
+    return Int32.Parse(numString);
 }
 
 static (int, int) ParsePair(Match match)
