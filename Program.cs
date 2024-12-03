@@ -17,7 +17,7 @@ Console.WriteLine("Safety with dampening: " + levels.Where(IsLevelSafeWithDampen
 
 Console.WriteLine("Advent Day 3");
 
-var pairs = ParseText(File.ReadAllText(args[0]));
+var pairs = ParseTextForMulDoDont(File.ReadAllText(args[0]));
 
 var multiplied = pairs.Select(pair => pair.Item1 * pair.Item2);
 
@@ -25,7 +25,7 @@ var summed = multiplied.Sum();
 
 Console.WriteLine(summed);
 
-static IEnumerable<(int, int)> ParseText(string text)
+static IEnumerable<(int, int)> ParseTextForMul(string text)
 {
     var matches = Regex.Matches(text, @"mul\((\d)+,(\d)+\)");
 
@@ -61,6 +61,55 @@ static IEnumerable<(int, int)> ParseText(string text)
 
     return pairs;
 }
+
+static IEnumerable<(int, int)> ParseTextForMulDoDont(string text)
+{
+    var matches = Regex.Matches(text, @"do\(\)|mul\((\d)+,(\d)+\)|don't\(\)");
+
+    var pairs = new List<(int, int)>();
+
+    bool enabled = true;
+
+    foreach (Match match in matches)
+    {
+        if (match.Value == "do()")
+        {
+            enabled = true;
+        }
+        else if (match.Value == "don't()")
+        {
+            enabled = false;
+        }
+        else
+        {
+            if (enabled)
+            {
+                if (match.Groups.Count != 3)
+                {
+                    throw new Exception("Expecting 3 groups");
+                }
+                var firstGroup = match.Groups[1];
+                string firstNum = "";
+                foreach (var digit in firstGroup.Captures)
+                {
+                    firstNum += digit;
+                }
+
+                var secondGroup = match.Groups[2];
+                string secondNum = "";
+                foreach (var digit in secondGroup.Captures)
+                {
+                    secondNum += digit;
+                }
+
+                pairs.Add((Int32.Parse(firstNum), Int32.Parse(secondNum)));
+            }
+        }
+    }
+
+    return pairs;
+}
+
 
 
 static bool IsGapSafe(int a, int b)
